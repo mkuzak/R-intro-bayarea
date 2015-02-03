@@ -1,9 +1,9 @@
 Package: RIntroBayarea
 Type: Package
-Title: What the package does (short line)
-Version: 1.0
+Title: R workshop exploring Bay Area housing
+Version: 0.1
 Date: 2015-02-02
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Author: person("Mateusz", "Kuzak", email="mateusz.kuzak@gmail.com")
+Maintainer: person("Mateusz", "Kuzak", email="mateusz.kuzak@gmail.com")
+Description: Worskshop intoducing some R features to non-R programmers
+License: Apache-2.0
