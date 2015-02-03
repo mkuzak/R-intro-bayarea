@@ -1,10 +1,10 @@
 # read in house sales data
 
-sales_file <- system.file('extdata', 'house-sales.csv', package='R-intro-bayarea' )
+sales_file <- system.file('inst/extdata', 'house-sales.csv', package='RInroBayarea' )
 sales <- read.csv(sales_file, stringsAsFactors=FALSE)
 
 # read in geolocation data
-ad_file <- system.file('extdata', 'addresses.csv', package='R-intro-bayarea' )
+ad_file <- system.file('inst', 'extdata', 'addresses.csv', package='RIntroBayarea' )
 ad <- read.csv(ad_file, stringsAsFactors=FALSE)
 
 # by default everything is read in as strings
