@@ -1,5 +1,8 @@
 library(plyr)
 library(ggplot2)
+library(ggmap)
+library(dplyr)
+library(mgcv)
 
 # read in house sales data
 path = system.file(package='RIntroBayarea')
@@ -53,6 +56,39 @@ ggplot(geo, aes(city)) +
   geom_histogram() +
   geom_hline(yintercept=n_weeks*20)
 
-# add interesting citie
+# add interesting cities
 selected <- c(as.character(big_cities$city), 'Mountain View', 'Berkley')
 bigc_geo <- subset(geo, city %in% selected)
+
+# see the locations of the sales on the map
+qmplot(long, lat, data=bigc_geo, color=I('red'), alpha=I(0.1))
+qmplot(long, lat, data=bigc_geo, color=I('red'),
+       maptype='toner-lite', geom='density2d')
+
+# calculate average price and number of sales per city per day
+bigsum <- bigc_geo %>%
+          group_by(city, date) %>%
+          summarise(n=n(),price=mean(price))
+
+# plot number of sales in time
+qplot(date, n, data=bigsum, geom='line', group=city)
+qplot(date, n, data=bigsum, geom='line', group=city) + facet_wrap(~city)
+
+# and average price in tme
+qplot(date, price, data=bigsum, geom='line', group=city)
+qplot(date, price, data=bigsum, geom='line', group=city) + facet_wrap(~city)
+
+# load financial data (consumer price index)
+cpi_file <- paste0(path, "/extdata/finances-cpi-west.csv")
+cpi <- read.csv(cpi_file)
+
+# add one last row (same as last available)
+cpi <- rbind(cpi, data.frame(year = 2008, month = 11, cpi = cpi$cpi[nrow(cpi)]))
+
+# start after April 2003
+cpi <- subset(cpi, (year == 2003 & month >= 4) | year > 2003)
+
+# calculate the ratio, compared to first cpi record
+cpi$ratio <- cpi$cpi / cpi$cpi[1]
+
+qplot(year + month / 12, ratio, data = cpi, geom = "line", ylab = "Inflation") + xlab(NULL)
