@@ -74,7 +74,7 @@ bigsum <- bigc_geo %>%
 qplot(date, n, data=bigsum, geom='line', group=city)
 qplot(date, n, data=bigsum, geom='line', group=city) + facet_wrap(~city)
 
-# and average price in tme
+# and average price in time
 qplot(date, price, data=bigsum, geom='line', group=city)
 qplot(date, price, data=bigsum, geom='line', group=city) + facet_wrap(~city)
 
@@ -91,4 +91,16 @@ cpi <- subset(cpi, (year == 2003 & month >= 4) | year > 2003)
 # calculate the ratio, compared to first cpi record
 cpi$ratio <- cpi$cpi / cpi$cpi[1]
 
+# plot the inflation
 qplot(year + month / 12, ratio, data = cpi, geom = "line", ylab = "Inflation") + xlab(NULL)
+
+# adjust prices for inflation
+geo <- merge(geo, cpi, by=c("month", "year"), sort=F)
+geo$priceadj <- geo$price / geo$ratio
+ggplot(geo) +
+  geom_line(aes(x=date, y=price)) +
+  geom_line(aes(x=date, y=priceadj)) +
+  facet_wrap(~city)
+
+
+
