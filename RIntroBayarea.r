@@ -4,7 +4,7 @@ library(ggmap)
 library(dplyr)
 library(mgcv)
 
-# read in house sales data
+# read house sales data
 path = system.file(package='RIntroBayarea')
 sales_file <- paste0(path, "/extdata/house-sales.csv")
 sales <- read.csv(sales_file, stringsAsFactors=FALSE)
@@ -78,29 +78,29 @@ qplot(date, n, data=bigsum, geom='line', group=city) + facet_wrap(~city)
 qplot(date, price, data=bigsum, geom='line', group=city)
 qplot(date, price, data=bigsum, geom='line', group=city) + facet_wrap(~city)
 
-# load financial data (consumer price index)
-cpi_file <- paste0(path, "/extdata/finances-cpi-west.csv")
-cpi <- read.csv(cpi_file)
+# extract day and year from date (for easier manupulations)
+get_month <- function(x) as.POSIXlt(x)$mon + 1
+get_year <- function(x) as.POSIXlt(x)$year + 1900
 
-# add one last row (same as last available)
-cpi <- rbind(cpi, data.frame(year = 2008, month = 11, cpi = cpi$cpi[nrow(cpi)]))
+# look at the distribution of monthly averages
+bigsum$month <- get_month(bigsum$date)
+bigsum$year <- get_year(bigsum$date)
 
-# start after April 2003
-cpi <- subset(cpi, (year == 2003 & month >= 4) | year > 2003)
+big_montly <- bigsum %>%
+group_by(city, year, month) %>%
+summarise(m_price = mean(price))
 
-# calculate the ratio, compared to first cpi record
-cpi$ratio <- cpi$cpi / cpi$cpi[1]
+qplot(factor(year + month/12), m_price, data=big_montly, geom="boxplot")
 
-# plot the inflation
-qplot(year + month / 12, ratio, data = cpi, geom = "line", ylab = "Inflation") + xlab(NULL)
+# the distribution of prices is wide, it's right skewed 
+qplot(price, data = geo, geom="histogram", binwidth = 1e4, xlim = c(0, 2e6))
+fp <- geom_freqpoly(aes(y = ..density..), binwidth = .05)
 
-# adjust prices for inflation
-geo <- merge(geo, cpi, by=c("month", "year"), sort=F)
-geo$priceadj <- geo$price / geo$ratio
-ggplot(geo) +
-  geom_line(aes(x=date, y=price)) +
-  geom_line(aes(x=date, y=priceadj)) +
-  facet_wrap(~city)
+# distribution within each year
+ggplot(geo, aes(log10(price))) + fp + aes(colour = factor(year))
+# distributions by month
+ggplot(geo, aes(log10(price))) + fp + aes(colour = factor(month))
 
-
+# split into months within each year
+ggplot(geo, aes(log10(price))) + fp + facet_grid(year ~ month)
 
