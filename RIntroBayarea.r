@@ -113,3 +113,23 @@ qmplot(long, lat, data=bigc_geo, color=county, alpha=I(0.1), maptype='toner-lite
 # age of houses geolocated
 qmplot(long, lat, data=bigc_geo, color=year, alpha=I(0.1), maptype='toner-lite')
 
+# cleaning the data
+select(bigc_geo, year) %>% distinct()
+bigc_geo %<>% filter(year > 100, year < 2015)
+
+qmplot(long, lat, data=bigc_geo, color=year, alpha=I(0.1), maptype='toner-lite') +
+  scale_color_gradientn(colours=heat.colors(10, alpha=0.3))
+
+# look at SF
+sf_geo <- filter(bigc_geo, city == "San Francisco")
+qmplot(long, lat, data=sf_geo, color=year, alpha=I(0.1), maptype='toner-lite') +
+  scale_color_gradientn(colours=heat.colors(10, alpha=0.5))
+# what about the corelation between the age and the price?
+qmplot(long, lat, data=sf_geo, color=year, size=price,
+       alpha=I(0.1), maptype='toner-lite') +
+  scale_color_gradientn(colours=heat.colors(10, alpha=0.5)) +
+  scale_size_area()
+
+qmplot(long, lat, data=sf_geo, alpha=I(0.5), stat="binhex", geom="hex",
+       maptype='toner-lite')+
+  scale_fill_gradientn(colours=heat.colors(16))
