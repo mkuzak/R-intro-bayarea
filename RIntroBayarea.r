@@ -1,69 +1,83 @@
-library(plyr)
 library(ggplot2)
 library(ggmap)
 library(dplyr)
 library(mgcv)
+library(lubridate)
 
 # read house sales data
-path = system.file(package='RIntroBayarea')
-sales_file <- paste0(path, "/extdata/house-sales.csv")
-sales <- read.csv(sales_file, stringsAsFactors=FALSE)
+sales <- read.csv('./data/house-sales.csv', stringsAsFactors=FALSE)
 
-# read in geolocation data
-ad_file <- paste0(path, '/extdata/addresses.csv')
-ad <- read.csv(ad_file, stringsAsFactors=FALSE)
+# read geolocation data
+ad <- read.csv('./data/addresses.csv', stringsAsFactors=FALSE)
 
 # by default everything is read in as strings
 # we need to convert date strings into date objects
+# old-style R
 sales$date <- as.POSIXct(strptime(sales$date, '%Y-%m-%d'))
+# new-style R
+sales$date %<>% ymd()
 
-# and prices into numeric values
+# prices into numeric values
+# old-style R
 sales$price <- as.numeric(sales$price)
+# new-style R
+sales$price %<>% as.numeric()
+
+# zip codes into numeric values
+ad$zip %<>% as.numeric()
 
 # check if there are missing vaules in sales or date
+# old-style R
 any(is.na(sales$price))
 any(is.na(sales$date))
+any(is.na(ad$zip))
+# new-style R
+sales$price %>% is.na() %>% any()
+sales$date %>% is.na() %>% any()
 
-# remove missing rows with missing dates
+# remove records with missing important fields
+# old-style R
+sales <- sales[!is.na(sales$price), ]
 sales <- sales[!is.na(sales$date), ]
+ad <- ad[!is.na(ad$zip), ]
+# new-style R
+sales %<>% filter(!is.na(price), !is.na(date))
+ad %<>% filter(!is.na(zip))
 
-# combine sales data with geospatial information
-names(sales)
-names(ad)
+# combine geo information with sales
+geo <- inner_join(ad, sales)
 
-# by common columns
-intersect_cols <- intersect(names(sales), names(ad))
-geo <- join(sales, ad, by = intersect_cols)
-
-# choose only records with goog quality geocoding
+# choose only records with good quality geocoding
 precise_qual <- c(
   "QUALITY_ADDRESS_RANGE_INTERPOLATION", "QUALITY_EXACT_PARCEL_CENTROID",
   "gpsvisualizer")
-precise <- subset(geo, quality %in% precise_qual)
+precise <- filter(geo, quality %in% precise_qual)
 
-# choose cities with at least 20 sales a week
+# choose cities with at least 10 sales a week
 # how many weeks does our dataset cover?
-n_weeks <- as.integer((max(precise$date) - min(precise$date)) / 7)
+date_range <- range(precise$date)
+weeks <- as.integer(date_range[2] - date_range[1]) / 7
 
 # calculate sales per city
-cities <- as.data.frame(table(precise$city))
-names(cities) <- c('city', 'freq')
+cities <- group_by(precise, city) %>%
+  summarise(freq = n())
 
-big_cities <- subset(cities, freq > n_weeks * 20)
+big_cities <- filter(cities, freq > weeks * 10)
 
 # see what we actually pick up
-ggplot(geo, aes(city)) +
-  geom_histogram() +
-  geom_hline(yintercept=n_weeks*20)
+ggplot(cities, aes(freq)) +
+  geom_histogram(binwidth=250, alpha=I(0.7)) +
+  geom_vline(xintercept=weeks*10, color=I("red"))
 
 # add interesting cities
 selected <- c(as.character(big_cities$city), 'Mountain View', 'Berkley')
-bigc_geo <- subset(geo, city %in% selected)
+bigc_geo <- filter(geo, city %in% selected)
 
 # see the locations of the sales on the map
 qmplot(long, lat, data=bigc_geo, color=I('red'), alpha=I(0.1))
 qmplot(long, lat, data=bigc_geo, color=I('red'),
        maptype='toner-lite', geom='density2d')
+
 
 # calculate average price and number of sales per city per day
 bigsum <- bigc_geo %>%
@@ -86,21 +100,16 @@ get_year <- function(x) as.POSIXlt(x)$year + 1900
 bigsum$month <- get_month(bigsum$date)
 bigsum$year <- get_year(bigsum$date)
 
-big_montly <- bigsum %>%
-group_by(city, year, month) %>%
-summarise(m_price = mean(price))
+big_monthly <- bigsum %>%
+  group_by(city, year, month) %>%
+  summarise(m_price = mean(price),
+            date = date[1])
 
-qplot(factor(year + month/12), m_price, data=big_montly, geom="boxplot")
+qplot(factor(date), m_price, data=big_monthly, geom="boxplot")
 
-# the distribution of prices is wide, it's right skewed 
-qplot(price, data = geo, geom="histogram", binwidth = 1e4, xlim = c(0, 2e6))
-fp <- geom_freqpoly(aes(y = ..density..), binwidth = .05)
+# geogrphic analysis
+qmplot(long, lat, data=bigc_geo, color=county, alpha=I(0.1), maptype='toner-lite')
 
-# distribution within each year
-ggplot(geo, aes(log10(price))) + fp + aes(colour = factor(year))
-# distributions by month
-ggplot(geo, aes(log10(price))) + fp + aes(colour = factor(month))
-
-# split into months within each year
-ggplot(geo, aes(log10(price))) + fp + facet_grid(year ~ month)
+# age of houses geolocated
+qmplot(long, lat, data=bigc_geo, color=year, alpha=I(0.1), maptype='toner-lite')
 
