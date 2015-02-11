@@ -78,36 +78,12 @@ qmplot(long, lat, data=bigc_geo, color=I('red'), alpha=I(0.1))
 qmplot(long, lat, data=bigc_geo, color=I('red'),
        maptype='toner-lite', geom='density2d')
 
-
 # calculate average price and number of sales per city per day
 bigsum <- bigc_geo %>%
           group_by(city, date) %>%
           summarise(n=n(),price=mean(price))
 
-# plot number of sales in time
-qplot(date, n, data=bigsum, geom='line', group=city)
-qplot(date, n, data=bigsum, geom='line', group=city) + facet_wrap(~city)
-
-# and average price in time
-qplot(date, price, data=bigsum, geom='line', group=city)
-qplot(date, price, data=bigsum, geom='line', group=city) + facet_wrap(~city)
-
-# extract day and year from date (for easier manupulations)
-get_month <- function(x) as.POSIXlt(x)$mon + 1
-get_year <- function(x) as.POSIXlt(x)$year + 1900
-
-# look at the distribution of monthly averages
-bigsum$month <- get_month(bigsum$date)
-bigsum$year <- get_year(bigsum$date)
-
-big_monthly <- bigsum %>%
-  group_by(city, year, month) %>%
-  summarise(m_price = mean(price),
-            date = date[1])
-
-qplot(factor(date), m_price, data=big_monthly, geom="boxplot")
-
-# geogrphic analysis
+# spatial analysis see if county assignment went right
 qmplot(long, lat, data=bigc_geo, color=county, alpha=I(0.1), maptype='toner-lite')
 
 # age of houses geolocated
@@ -133,3 +109,28 @@ qmplot(long, lat, data=sf_geo, color=year, size=price,
 qmplot(long, lat, data=sf_geo, alpha=I(0.5), stat="binhex", geom="hex",
        maptype='toner-lite')+
   scale_fill_gradientn(colours=heat.colors(16))
+
+
+# tiemline
+# plot number of sales in time
+qplot(date, n, data=bigsum, geom='line', group=city)
+qplot(date, n, data=bigsum, geom='line', group=city) + facet_wrap(~city)
+
+# and average price in time
+qplot(date, price, data=bigsum, geom='line', group=city)
+qplot(date, price, data=bigsum, geom='line', group=city) + facet_wrap(~city)
+
+# extract day and year from date (for easier manupulations)
+get_month <- function(x) as.POSIXlt(x)$mon + 1
+get_year <- function(x) as.POSIXlt(x)$year + 1900
+
+# look at the distribution of monthly averages
+bigsum$month <- get_month(bigsum$date)
+bigsum$year <- get_year(bigsum$date)
+
+big_monthly <- bigsum %>%
+  group_by(city, year, month) %>%
+  summarise(m_price = mean(price),
+            date = date[1])
+
+qplot(factor(date), m_price, data=big_monthly, geom="boxplot")
