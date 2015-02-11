@@ -133,4 +133,13 @@ big_monthly <- bigsum %>%
   summarise(m_price = mean(price),
             date = date[1])
 
-qplot(factor(date), m_price, data=big_monthly, geom="boxplot")
+qplot(factor(date), m_price, data=big_monthly, geom="boxplot") +
+  theme(axis.text.x = element_text(angle=45, hjust=1))
+
+qplot(factor(date), m_price, data=big_monthly, geom="boxplot") +
+  coord_flip()
+
+# smooth
+bigsum %>% do(model = gam(as.numeric(date) ~ s(price), data = .))
+
+
