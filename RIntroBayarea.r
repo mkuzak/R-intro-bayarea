@@ -171,9 +171,18 @@ covar <- arrange(bigsum, city, date) %>%
     plummet = last(price_si)
   )
 
-ggplot(bigsum, aes(date, price_si)) + 
-  geom_line() + 
-  facet_wrap(~ city)
-
 ggplot(covar, aes(peak, plummet)) +
   geom_point()
+ggplot(covar, aes(peak, plummet)) +
+  geom_point() +
+  geom_text(aes(label=city), size=4, hjust=-0.05)
+
+covar %<>% transform(delta=plummet - peak)
+
+census <- read.csv('data/census-city.csv')
+covar %<>% inner_join(census)
+
+plot_base <- ggplot(covar, aes(y=delta)) + geom_point()
+plot_base + aes(grads)
+plot_base + aes(income)
+plot_base + aes(housesold_size)
