@@ -3,6 +3,8 @@ library(ggmap)
 library(dplyr)
 library(mgcv)
 library(lubridate)
+library(magrittr)
+library(hexbin)
 
 # read house sales data
 sales <- read.csv('./data/house-sales.csv', stringsAsFactors=FALSE)
@@ -84,17 +86,17 @@ bigsum <- bigc_geo %>%
           summarise(n=n(),price=mean(price))
 
 # spatial analysis see if county assignment went right
-qmplot(long, lat, data=bigc_geo, color=county, alpha=I(0.1), maptype='toner-lite')
+qmplot(long, lat, data=bigc_geo, color=county, alpha=I(0.05), maptype='toner-lite') +
+  guides(colour = guide_legend(override.aes = list(alpha=1)))
 
 # age of houses geolocated
 qmplot(long, lat, data=bigc_geo, color=year, alpha=I(0.1), maptype='toner-lite')
 
 # cleaning the data
 select(bigc_geo, year) %>% distinct()
-bigc_geo %<>% filter(year > 100, year < 2015)
+bigc_geo %<>% filter(year > 1700, year < 2015)
 
-qmplot(long, lat, data=bigc_geo, color=year, alpha=I(0.1), maptype='toner-lite') +
-  scale_color_gradientn(colours=heat.colors(10, alpha=0.3))
+qmplot(long, lat, data=bigc_geo, color=year, alpha=I(0.1), maptype='toner-lite')
 
 # look at SF
 sf_geo <- filter(bigc_geo, city == "San Francisco")
@@ -139,7 +141,39 @@ qplot(factor(date), m_price, data=big_monthly, geom="boxplot") +
 qplot(factor(date), m_price, data=big_monthly, geom="boxplot") +
   coord_flip()
 
-# smooth
-bigsum %>% do(model = gam(as.numeric(date) ~ s(price), data = .))
+# smoothing
+smooth <- function(y, x) {
+  as.numeric(predict(gam(y ~ s(x), na.action = na.exclude)))
+}
 
+bigsum <- plyr::ddply(bigsum, plyr::.(city), transform,
+                price_s = smooth(price, as.numeric(date)))
+ggplot(bigsum, aes(date, price_s /1e6, group=city)) +
+  geom_line()
 
+index <- function(y, x) {
+  y / y[order(x)[1]]
+}
+bigsum <- plyr::ddply(bigsum, plyr::.(city), transform,
+                price_si = index(price_s, date))
+ggplot(bigsum, aes(date, price_si /1e6, group=city, color=city)) +
+  geom_line()
+
+ggplot(bigsum, aes(date, price_si)) + 
+  geom_line() + 
+  facet_wrap(~ city)
+
+# get the peak and last price
+covar <- arrange(bigsum, city, date) %>%
+  group_by(city) %>%
+  summarise(
+    peak = max(price_si),
+    plummet = last(price_si)
+  )
+
+ggplot(bigsum, aes(date, price_si)) + 
+  geom_line() + 
+  facet_wrap(~ city)
+
+ggplot(covar, aes(peak, plummet)) +
+  geom_point()
