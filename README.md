@@ -16,3 +16,15 @@ I recommend using [RStudio](http://www.rstudio.com/products/RStudio/) for workin
 
 To start working through the tutorial clone this git repository locally.
 Whole environment should get setup once you load it in RStudio. It is an good idea to create an RStudio project from this repository ([read how to do it](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects)).
+
+## Setup issues
+### Mac OS X
+If you get
+```
+ERROR: tar: failed to set default locale
+```
+when installing packages, set locale with running in shell:
+```
+defaults write org.R-project.R force.LANG en_US.UTF-8
+```
+and restart R studio.
