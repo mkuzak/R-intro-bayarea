@@ -15,7 +15,7 @@ I recommend using [RStudio](http://www.rstudio.com/products/RStudio/) for workin
 [Follow RStudio installation installation instructions](http://www.rstudio.com/products/rstudio/download/)
 
 To start working through the tutorial clone this git repository locally.
-Whole environment should get setup once you load it in RStudio. It is an good idea to create an RStudio project from this repository ([read how to do it](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects)).
+Whole environment should get setup once you load it in RStudio. It is an good idea to create an RStudio project from this repository directory . To do it: `File -> New Project -> Existing Directory` ([read about wrking with projects](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects)).
 
 ## Setup issues
 ### Mac OS X
