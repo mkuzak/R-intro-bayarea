@@ -1,5 +1,5 @@
-*Introduction to R* worshop material
-==================================
+*Introduction to R* workshop material
+=====================================
 
 This workshop material is based on [Bay area blues: the effect of the housing crisis][bay-area-blues], chapter in [Beautiful Data](http://www.amazon.com/Beautiful-Data-Stories-Elegant-Solutions/dp/0596157118), by Hadley Wickham, David Poole and Deborah F Swayne.
 
