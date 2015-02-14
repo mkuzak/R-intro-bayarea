@@ -34,4 +34,4 @@ and restart R studio.
 If you want to learn more about R, you can follow a [free course on R Programming](https://www.coursera.org/course/rprog) on Coursera by Johns Hopkins University. At the moment (February 2015) the next 4-week session is sceduled to start on **March 2nd, 2015**.
 
 ### Interactive R tutorial at [Code School](https://www.codeschool.com/)
-If you think commiting to coursera course is to much, you can learn R basics at your own pace folloing [Try R](https://www.codeschool.com/courses/try-r) online tutorial.
+If you think commiting to coursera course is to much, you can learn R basics at your own pace following [Try R](https://www.codeschool.com/courses/try-r) online tutorial.
