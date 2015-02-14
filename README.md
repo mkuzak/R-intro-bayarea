@@ -28,3 +28,7 @@ when installing packages, set locale with running in shell:
 defaults write org.R-project.R force.LANG en_US.UTF-8
 ```
 and restart R studio.
+
+## Continue learning
+### Johns Hopkins University R Programming course on Coursera
+If you want to learn more about R, you can follow a [free course on R Programming](https://www.coursera.org/course/rprog) on Coursera by Johns Hopkins University. At the moment (February 2015) the next 4-week session is sceduled to start on **March 2nd, 2015**.
