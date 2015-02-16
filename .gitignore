@@ -4,3 +4,4 @@
 *.Rproj
 packrat/lib*/
 packrat/src/
+*~
