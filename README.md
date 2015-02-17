@@ -18,6 +18,9 @@ To start working through the tutorial clone this git repository locally.
 Whole environment should get setup once you load it in RStudio. It is an good idea to create an RStudio project from this repository directory . To do it: `File -> New Project -> Existing Directory` ([read about wrking with projects](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects)).
 
 ## Setup issues
+### Windows
+Install [RTools](http://cran.r-project.org/bin/windows/Rtools/) to be able to build packages. This should be done after installing R and before creating a project in R studio.
+
 ### Mac OS X
 If you get
 ```
