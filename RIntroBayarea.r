@@ -102,7 +102,7 @@ qmplot(long, lat, data=bigc_geo, color=year, alpha=I(0.1), maptype='toner-lite')
 sf_geo <- filter(bigc_geo, city == "San Francisco")
 qmplot(long, lat, data=sf_geo, color=year, alpha=I(0.1), maptype='toner-lite') +
   scale_color_gradientn(colours=heat.colors(10, alpha=0.5))
-# what about the corelation between the age and the price?
+# what about the correlation between the age and the price?
 qmplot(long, lat, data=sf_geo, color=year, size=price,
        alpha=I(0.1), maptype='toner-lite') +
   scale_color_gradientn(colours=heat.colors(10, alpha=0.5)) +
@@ -113,7 +113,7 @@ qmplot(long, lat, data=sf_geo, alpha=I(0.5), stat="binhex", geom="hex",
   scale_fill_gradientn(colours=heat.colors(16))
 
 
-# tiemline
+# timeline
 # plot number of sales in time
 qplot(date, n, data=bigsum, geom='line', group=city)
 qplot(date, n, data=bigsum, geom='line', group=city) + facet_wrap(~city)

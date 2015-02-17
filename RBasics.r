@@ -34,7 +34,7 @@ c(f)
 sex_char <- c("m", "m", "m")
 sex_factor <- factor(sex_char, levels = c("m", "f"))
 
-# be carefull !!
+# be careful !!
 # most data loading functions in R automatically convert character vectors to factors
 
 # matrices and arrays
